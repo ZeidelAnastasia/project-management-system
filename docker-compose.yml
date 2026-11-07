@@ -1,0 +1,427 @@
+
+name: project-management-system
+
+services:
+
+  # =========================
+  # PostgreSQL databases
+  # =========================
+
+  auth-db:
+    image: postgres:16-alpine
+    container_name: auth-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: auth_db
+      POSTGRES_USER: ${POSTGRES_USER:-app}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dev_password}
+    ports:
+      - "5433:5432"
+    volumes:
+      - auth-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - backend
+
+  project-db:
+    image: postgres:16-alpine
+    container_name: project-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: project_db
+      POSTGRES_USER: ${POSTGRES_USER:-app}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dev_password}
+    ports:
+      - "5434:5432"
+    volumes:
+      - project-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - backend
+
+  task-db:
+    image: postgres:16-alpine
+    container_name: task-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: task_db
+      POSTGRES_USER: ${POSTGRES_USER:-app}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dev_password}
+    ports:
+      - "5435:5432"
+    volumes:
+      - task-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - backend
+
+  communication-db:
+    image: postgres:16-alpine
+    container_name: communication-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: communication_db
+      POSTGRES_USER: ${POSTGRES_USER:-app}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dev_password}
+    ports:
+      - "5436:5432"
+    volumes:
+      - communication-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - backend
+
+  notification-db:
+    image: postgres:16-alpine
+    container_name: notification-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: notification_db
+      POSTGRES_USER: ${POSTGRES_USER:-app}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dev_password}
+    ports:
+      - "5437:5432"
+    volumes:
+      - notification-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - backend
+
+  intelligence-db:
+    image: postgres:16-alpine
+    container_name: intelligence-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: intelligence_db
+      POSTGRES_USER: ${POSTGRES_USER:-app}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dev_password}
+    ports:
+      - "5438:5432"
+    volumes:
+      - intelligence-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - backend
+
+  # =========================
+  # ClickHouse
+  # =========================
+
+  clickhouse:
+    image: clickhouse/clickhouse-server:24.8
+    container_name: reporting-db
+    restart: unless-stopped
+    environment:
+      CLICKHOUSE_DB: reporting_db
+      CLICKHOUSE_USER: ${CLICKHOUSE_USER:-app}
+      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD:-dev_password}
+      CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: 1
+    ports:
+      - "8123:8123"
+      - "9000:9000"
+    volumes:
+      - clickhouse-data:/var/lib/clickhouse
+      - clickhouse-logs:/var/log/clickhouse-server
+    healthcheck:
+      test: ["CMD", "clickhouse-client", "--user", "app", "--password", "dev_password", "--query", "SELECT 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - backend
+
+  # =========================
+  # Apache Kafka
+  # =========================
+
+  kafka:
+    image: apache/kafka:3.9.1
+    container_name: kafka
+    restart: unless-stopped
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093,PLAINTEXT_HOST://:29092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_NUM_PARTITIONS: 3
+    volumes:
+      - kafka-data:/var/lib/kafka/data
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+    networks:
+      - backend
+
+  # =========================
+  # Backend microservices
+  # =========================
+
+  auth-service:
+    build:
+      context: ./auth-service
+      dockerfile: Dockerfile
+    container_name: auth-service
+    restart: unless-stopped
+    profiles: ["application"]
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://auth-db:5432/auth_db
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-app}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-dev_password}
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      JWT_SECRET: ${JWT_SECRET:-change_this_secret_key_for_development}
+      JWT_ACCESS_EXPIRATION: ${JWT_ACCESS_EXPIRATION:-900000}
+      JWT_REFRESH_EXPIRATION: ${JWT_REFRESH_EXPIRATION:-604800000}
+    ports:
+      - "8081:8080"
+    depends_on:
+      auth-db:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    networks:
+      - backend
+
+  project-service:
+    build:
+      context: ./project-service
+      dockerfile: Dockerfile
+    container_name: project-service
+    restart: unless-stopped
+    profiles: ["application"]
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://project-db:5432/project_db
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-app}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-dev_password}
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    ports:
+      - "8082:8080"
+    depends_on:
+      project-db:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    networks:
+      - backend
+
+  task-service:
+    build:
+      context: ./task-service
+      dockerfile: Dockerfile
+    container_name: task-service
+    restart: unless-stopped
+    profiles: ["application"]
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://task-db:5432/task_db
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-app}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-dev_password}
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    ports:
+      - "8083:8080"
+    depends_on:
+      task-db:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    networks:
+      - backend
+
+  communication-service:
+    build:
+      context: ./communication-service
+      dockerfile: Dockerfile
+    container_name: communication-service
+    restart: unless-stopped
+    profiles: ["application"]
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://communication-db:5432/communication_db
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-app}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-dev_password}
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    ports:
+      - "8084:8080"
+    depends_on:
+      communication-db:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    networks:
+      - backend
+
+  notification-service:
+    build:
+      context: ./notification-service
+      dockerfile: Dockerfile
+    container_name: notification-service
+    restart: unless-stopped
+    profiles: ["application"]
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://notification-db:5432/notification_db
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-app}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-dev_password}
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    ports:
+      - "8085:8080"
+    depends_on:
+      notification-db:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    networks:
+      - backend
+
+  reporting-service:
+    build:
+      context: ./reporting-service
+      dockerfile: Dockerfile
+    container_name: reporting-service
+    restart: unless-stopped
+    profiles: ["application"]
+    environment:
+      CLICKHOUSE_URL: jdbc:clickhouse://clickhouse:8123/reporting_db
+      CLICKHOUSE_USERNAME: ${CLICKHOUSE_USER:-app}
+      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD:-dev_password}
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    ports:
+      - "8086:8080"
+    depends_on:
+      clickhouse:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    networks:
+      - backend
+
+  intelligence-service:
+    build:
+      context: ./intelligence-service
+      dockerfile: Dockerfile
+    container_name: intelligence-service
+    restart: unless-stopped
+    profiles: ["application"]
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://intelligence-db:5432/intelligence_db
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-app}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-dev_password}
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    ports:
+      - "8087:8080"
+    depends_on:
+      intelligence-db:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    networks:
+      - backend
+
+  # =========================
+  # API Gateway
+  # =========================
+
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    container_name: api-gateway
+    restart: unless-stopped
+    profiles: ["application"]
+    environment:
+      AUTH_SERVICE_URL: http://auth-service:8080
+      PROJECT_SERVICE_URL: http://project-service:8080
+      TASK_SERVICE_URL: http://task-service:8080
+      COMMUNICATION_SERVICE_URL: http://communication-service:8080
+      NOTIFICATION_SERVICE_URL: http://notification-service:8080
+      REPORTING_SERVICE_URL: http://reporting-service:8080
+      INTELLIGENCE_SERVICE_URL: http://intelligence-service:8080
+      JWT_SECRET: ${JWT_SECRET:-change_this_secret_key_for_development}
+    ports:
+      - "8080:8080"
+    depends_on:
+      - auth-service
+      - project-service
+      - task-service
+      - communication-service
+      - notification-service
+      - reporting-service
+      - intelligence-service
+    networks:
+      - backend
+
+  # =========================
+  # Frontend
+  # =========================
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend
+    restart: unless-stopped
+    profiles: ["application"]
+    environment:
+      VITE_API_URL: http://localhost:8080
+    ports:
+      - "5173:5173"
+    depends_on:
+      - api-gateway
+    networks:
+      - backend
+
+# =========================
+# Volumes
+# =========================
+
+volumes:
+  auth-db-data:
+  project-db-data:
+  task-db-data:
+  communication-db-data:
+  notification-db-data:
+  intelligence-db-data:
+  clickhouse-data:
+  clickhouse-logs:
+  kafka-data:
+
+# =========================
+# Network
+# =========================
+
+networks:
+  backend:
+    driver: bridge
