@@ -45,9 +45,18 @@ springdoc:
 app:
   jwt:
     secret: ${JWT_SECRET:dGhpcy1pcy1hLXZlcnktc2VjdXJlLWFuZC1sb25nLXNlY3JldC1rZXktZm9yLWp3dA==}
-    access-token-expiration: ${JWT_ACCESS_EXPIRATION:900000}
+    access-expiration: ${JWT_ACCESS_EXPIRATION:900000}
     refresh-token-expiration: ${JWT_REFRESH_EXPIRATION:604800000}
 
   kafka:
     topics:
       user-registered: ${KAFKA_USER_REGISTERED_TOPIC:user-registered}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never

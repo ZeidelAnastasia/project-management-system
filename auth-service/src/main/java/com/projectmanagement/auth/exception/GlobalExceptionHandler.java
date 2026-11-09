@@ -144,13 +144,13 @@ public class GlobalExceptionHandler {
         );
     }
 
-    @ExceptionHandler(Exception.class)
+    /*@ExceptionHandler(Exception.class)
     public ProblemDetail handleUnexpectedException(Exception exception) {
         return createProblemDetail(
                 HttpStatus.INTERNAL_SERVER_ERROR,
                 "An unexpected error occurred"
         );
-    }
+    }*/
 
     private ProblemDetail createProblemDetail(
             HttpStatus status,

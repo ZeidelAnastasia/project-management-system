@@ -358,8 +358,8 @@ services:
 
   api-gateway:
     build:
-      context: ./api-gateway
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./api-gateway/Dockerfile
     container_name: api-gateway
     restart: unless-stopped
     profiles: ["application"]
@@ -372,16 +372,21 @@ services:
       REPORTING_SERVICE_URL: http://reporting-service:8080
       INTELLIGENCE_SERVICE_URL: http://intelligence-service:8080
       JWT_SECRET: ${JWT_SECRET:-change_this_secret_key_for_development}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:5173}
+      CORS_ALLOWED_METHODS: ${CORS_ALLOWED_METHODS:-GET,POST,PUT,PATCH,DELETE,OPTIONS}
+      CORS_ALLOWED_HEADERS: ${CORS_ALLOWED_HEADERS:-Authorization,Content-Type}
+      CORS_ALLOW_CREDENTIALS: ${CORS_ALLOW_CREDENTIALS:-true}
+      CORS_MAX_AGE: ${CORS_MAX_AGE:-3600}
     ports:
       - "8080:8080"
     depends_on:
       - auth-service
-      - project-service
-      - task-service
-      - communication-service
-      - notification-service
-      - reporting-service
-      - intelligence-service
+      #- project-service
+      #- task-service
+      #- communication-service
+      #- notification-service
+      #- reporting-service
+      #- intelligence-service
     networks:
       - backend
 
