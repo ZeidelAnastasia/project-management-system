@@ -4,10 +4,9 @@ server:
 spring:
   application:
     name: auth-service
-
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5433/}auth_db
-    username: ${POSTGRES_USER}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5433/auth_db}
+    username: ${POSTGRES_USER:app}
     password: ${POSTGRES_PASSWORD:dev_password}
     driver-class-name: org.postgresql.Driver
 
@@ -45,9 +44,9 @@ springdoc:
 
 app:
   jwt:
-    secret: ${JWT_SECRET}
-    access-token-expiration: ${JWT_ACCESS_EXPIRATION}
-    refresh-token-expiration: ${JWT_REFRESH_EXPIRATION}
+    secret: ${JWT_SECRET:dGhpcy1pcy1hLXZlcnktc2VjdXJlLWFuZC1sb25nLXNlY3JldC1rZXktZm9yLWp3dA==}
+    access-token-expiration: ${JWT_ACCESS_EXPIRATION:900000}
+    refresh-token-expiration: ${JWT_REFRESH_EXPIRATION:604800000}
 
   kafka:
     topics:
