@@ -1,6 +1,6 @@
 package com.projectmanagement.auth.controller;
 
-import com.projectmanagement.auth.api.UserApi;
+import com.projectmanagement.auth.controller.api.UserApi;
 import com.projectmanagement.auth.dto.request.RoleUpdateRequest;
 import com.projectmanagement.auth.dto.request.UserStatusUpdateRequest;
 import com.projectmanagement.auth.dto.response.UserResponse;

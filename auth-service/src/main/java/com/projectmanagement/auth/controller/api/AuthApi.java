@@ -1,4 +1,4 @@
-package com.projectmanagement.auth.api;
+package com.projectmanagement.auth.controller.api;
 
 import com.projectmanagement.auth.dto.request.LoginRequest;
 import com.projectmanagement.auth.dto.request.RefreshTokenRequest;

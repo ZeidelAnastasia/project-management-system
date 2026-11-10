@@ -1,6 +1,6 @@
 package com.projectmanagement.auth.controller;
 
-import com.projectmanagement.auth.api.AuthApi;
+import com.projectmanagement.auth.controller.api.AuthApi;
 import com.projectmanagement.auth.dto.request.LoginRequest;
 import com.projectmanagement.auth.dto.request.RefreshTokenRequest;
 import com.projectmanagement.auth.dto.request.RegisterRequest;
