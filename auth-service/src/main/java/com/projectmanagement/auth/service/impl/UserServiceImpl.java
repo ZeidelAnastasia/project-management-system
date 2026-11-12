@@ -57,12 +57,10 @@ public class UserServiceImpl implements UserService {
                 ));
 
         user.getUserRoles().clear();
-        userRoleRepository.deleteAllByIdUserId(id);
 
         UserRole userRole = new UserRole(user, role);
         userRoleRepository.save(userRole);
-
-        user.setUserRoles(Set.of(userRole));
+        user.getUserRoles().add(userRole);
 
         return authMapper.toUserResponse(user);
     }

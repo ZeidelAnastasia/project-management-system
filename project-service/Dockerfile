@@ -14,7 +14,4 @@ COPY --from=build /workspace/project-service/target/*.jar app.jar
 
 EXPOSE 8080
 
-ENTRYPOINT ["java", "-jar", "app.jar"]FROM ubuntu:latest
-LABEL authors="PC"
-
-ENTRYPOINT ["top", "-b"]
+ENTRYPOINT ["java", "-jar", "app.jar"]

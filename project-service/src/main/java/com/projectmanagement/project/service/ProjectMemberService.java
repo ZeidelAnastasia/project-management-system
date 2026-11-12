@@ -1,6 +1,7 @@
 package com.projectmanagement.project.service;
 
 import com.projectmanagement.project.dto.request.AddProjectMemberRequest;
+import com.projectmanagement.project.dto.response.ProjectAccessResponse;
 import com.projectmanagement.project.dto.response.ProjectMemberResponse;
 import com.projectmanagement.project.entity.enums.ProjectRole;
 
@@ -37,4 +38,6 @@ public interface ProjectMemberService {
             UUID currentUserId,
             String currentUserRole
     );
+
+    ProjectAccessResponse getProjectAccess(UUID projectId, UUID userId);
 }

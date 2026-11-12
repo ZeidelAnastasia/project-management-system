@@ -3,6 +3,7 @@ package com.projectmanagement.project.service.impl;
 import com.projectmanagement.project.client.TaskServiceClient;
 import com.projectmanagement.project.client.dto.TaskResponse;
 import com.projectmanagement.project.dto.request.AddProjectMemberRequest;
+import com.projectmanagement.project.dto.response.ProjectAccessResponse;
 import com.projectmanagement.project.dto.response.ProjectMemberResponse;
 import com.projectmanagement.project.entity.Project;
 import com.projectmanagement.project.entity.ProjectMember;
@@ -178,6 +179,32 @@ public class ProjectMemberServiceImpl implements ProjectMemberService {
 
         return projectMapper.toMemberResponse(
                 projectMemberRepository.save(member)
+        );
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ProjectAccessResponse getProjectAccess(UUID projectId, UUID userId) {
+        boolean projectExists = projectRepository.existsById(projectId);
+
+        if (!projectExists) {
+            return new ProjectAccessResponse(false, false, false);
+        }
+
+        boolean projectMember = projectMemberRepository
+                .existsByProject_IdAndUserId(projectId, userId);
+
+        boolean projectManager = projectMember
+                && projectMemberRepository.existsByProject_IdAndUserIdAndProjectRole(
+                projectId,
+                userId,
+                ProjectRole.MANAGER
+        );
+
+        return new ProjectAccessResponse(
+                true,
+                projectMember,
+                projectManager
         );
     }
 

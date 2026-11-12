@@ -246,8 +246,8 @@ services:
 
   task-service:
     build:
-      context: ./task-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./task-service/Dockerfile
     container_name: task-service
     restart: unless-stopped
     profiles: ["application"]
@@ -256,6 +256,8 @@ services:
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-app}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-dev_password}
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      PROJECT_SERVICE_URL: http://project-service:8080
+      AUTH_SERVICE_URL: http://auth-service:8080
     ports:
       - "8083:8080"
     depends_on:
@@ -383,8 +385,8 @@ services:
       - "8080:8080"
     depends_on:
       - auth-service
-      #- project-service
-      #- task-service
+      - project-service
+      - task-service
       #- communication-service
       #- notification-service
       #- reporting-service
