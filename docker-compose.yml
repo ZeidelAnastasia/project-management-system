@@ -270,8 +270,8 @@ services:
 
   communication-service:
     build:
-      context: ./communication-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./communication-service/Dockerfile
     container_name: communication-service
     restart: unless-stopped
     profiles: ["application"]
@@ -280,6 +280,8 @@ services:
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-app}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-dev_password}
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      TASK_SERVICE_URL: http://task-service:8080
+      AUTH_SERVICE_URL: http://auth-service:8080
     ports:
       - "8084:8080"
     depends_on:
@@ -387,7 +389,7 @@ services:
       - auth-service
       - project-service
       - task-service
-      #- communication-service
+      - communication-service
       #- notification-service
       #- reporting-service
       #- intelligence-service

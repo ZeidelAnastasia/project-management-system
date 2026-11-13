@@ -16,6 +16,12 @@ spring:
               predicates:
                 - Path=/api/auth/**,/api/users/**
 
+            - id: task-comments-service
+              uri: ${COMMUNICATION_SERVICE_URL:http://localhost:8084}
+              predicates:
+                - Path=/api/tasks/*/comments,/api/tasks/*/comments/**,/api/comments/**
+              order: -1
+
             - id: project-task-service
               uri: ${TASK_SERVICE_URL:http://localhost:8083}
               predicates:
@@ -32,11 +38,6 @@ spring:
               predicates:
                 - Path=/api/tasks/**
 
-            - id: communication-service
-              uri: ${COMMUNICATION_SERVICE_URL:http://localhost:8084}
-              predicates:
-                - Path=/api/comments/**
-
             - id: notification-service
               uri: ${NOTIFICATION_SERVICE_URL:http://localhost:8085}
               predicates:
@@ -50,7 +51,7 @@ spring:
             - id: intelligence-service
               uri: ${INTELLIGENCE_SERVICE_URL:http://localhost:8087}
               predicates:
-                - Path=/api/analysis/**,/api/projects/*/risk/**
+                - Path=/api/intelligence/**
 
 management:
   endpoints:
