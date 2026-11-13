@@ -66,6 +66,10 @@ app:
       task-effort-updated: ${KAFKA_TASK_EFFORT_UPDATED_TOPIC:task-effort-updated}
       task-deleted: ${KAFKA_TASK_DELETED_TOPIC:task-deleted}
 
+  time-zone: ${TASK_SERVICE_TIME_ZONE:Europe/Moscow}
+  internal:
+    token: ${TASK_SERVICE_INTERNAL_TOKEN}
+
 management:
   endpoints:
     web:

@@ -3,10 +3,7 @@ package com.projectmanagement.task.mapper;
 
 import com.projectmanagement.task.dto.request.CreateTaskRequest;
 import com.projectmanagement.task.dto.request.UpdateTaskRequest;
-import com.projectmanagement.task.dto.response.LabelResponse;
-import com.projectmanagement.task.dto.response.TaskDetailsResponse;
-import com.projectmanagement.task.dto.response.TaskHistoryResponse;
-import com.projectmanagement.task.dto.response.TaskResponse;
+import com.projectmanagement.task.dto.response.*;
 import com.projectmanagement.task.entity.Label;
 import com.projectmanagement.task.entity.Task;
 import com.projectmanagement.task.entity.TaskHistory;
@@ -108,6 +105,16 @@ public class TaskMapper {
                 toResponse(task),
                 task.getCreatedBy(),
                 toHistoryResponseList(history)
+        );
+    }
+
+    public DeadlineReminderTaskResponse toDeadlineReminderResponse(Task task) {
+        return new DeadlineReminderTaskResponse(
+                task.getId(),
+                task.getProjectId(),
+                task.getAssigneeId(),
+                task.getTitle(),
+                task.getDueDate()
         );
     }
 }

@@ -294,8 +294,8 @@ services:
 
   notification-service:
     build:
-      context: ./notification-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./notification-service/Dockerfile
     container_name: notification-service
     restart: unless-stopped
     profiles: ["application"]
@@ -316,8 +316,8 @@ services:
 
   reporting-service:
     build:
-      context: ./reporting-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./reporting-service/Dockerfile
     container_name: reporting-service
     restart: unless-stopped
     profiles: ["application"]
@@ -338,8 +338,8 @@ services:
 
   intelligence-service:
     build:
-      context: ./intelligence-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./intelligence-service/Dockerfile
     container_name: intelligence-service
     restart: unless-stopped
     profiles: ["application"]
@@ -390,8 +390,8 @@ services:
       - project-service
       - task-service
       - communication-service
-      #- notification-service
-      #- reporting-service
+      - notification-service
+      - reporting-service
       #- intelligence-service
     networks:
       - backend
