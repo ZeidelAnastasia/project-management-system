@@ -1,0 +1,62 @@
+
+server:
+  port: 8080
+
+spring:
+  application:
+    name: reporting-service
+
+  datasource:
+    url: ${CLICKHOUSE_URL:jdbc:clickhouse://localhost:8123/reporting_db}
+    username: ${CLICKHOUSE_USERNAME:app}
+    password: ${CLICKHOUSE_PASSWORD:dev_password}
+    driver-class-name: com.clickhouse.jdbc.ClickHouseDriver
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:29092}
+
+    consumer:
+      group-id: reporting-service
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      properties:
+        isolation.level: read_committed
+        max.poll.records: 100
+
+    listener:
+      ack-mode: manual
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    display-request-duration: true
+    operations-sorter: method
+    tags-sorter: alpha
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:dGhpcy1pcy1hLXZlcnktc2VjdXJlLWFuZC1sb25nLXNlY3JldC1rZXktZm9yLWp3dA==}
+
+  kafka:
+    topics:
+      project-created: ${KAFKA_PROJECT_CREATED_TOPIC:project-created}
+      project-completed: ${KAFKA_PROJECT_COMPLETED_TOPIC:project-completed}
+      task-created: ${KAFKA_TASK_CREATED_TOPIC:task-created}
+      task-updated: ${KAFKA_TASK_UPDATED_TOPIC:task-updated}
+      task-status-changed: ${KAFKA_TASK_STATUS_CHANGED_TOPIC:task-status-changed}
+      task-deadline-changed: ${KAFKA_TASK_DEADLINE_CHANGED_TOPIC:task-deadline-changed}
+      task-effort-updated: ${KAFKA_TASK_EFFORT_UPDATED_TOPIC:task-effort-updated}
+      task-deleted: ${KAFKA_TASK_DELETED_TOPIC:task-deleted}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never
