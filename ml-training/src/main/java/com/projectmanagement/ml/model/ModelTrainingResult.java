@@ -1,4 +1,15 @@
 package com.projectmanagement.ml.model;
 
-public class ModelTrainingResult {
+import lombok.Builder;
+
+import java.util.Map;
+
+@Builder
+public record ModelTrainingResult(
+        TrainedEffortModel model,
+        RegressionMetrics metrics,
+        Map<String, Double> featureImportance,
+        int trainingSamples,
+        int testSamples
+) {
 }

@@ -1,4 +1,10 @@
 package com.projectmanagement.intelligence.security.model;
 
-public class AuthenticatedUser {
+import java.util.Set;
+import java.util.UUID;
+
+public record AuthenticatedUser(
+        UUID userId,
+        Set<String> roles
+) {
 }

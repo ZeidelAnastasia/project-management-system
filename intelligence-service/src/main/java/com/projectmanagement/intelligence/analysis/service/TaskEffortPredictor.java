@@ -1,4 +1,8 @@
 package com.projectmanagement.intelligence.analysis.service;
 
-public class TaskEffortPredictor {
+import com.projectmanagement.intelligence.analysis.model.TaskFeatures;
+
+public interface TaskEffortPredictor {
+
+    double predict(TaskFeatures features, double complexityScore);
 }

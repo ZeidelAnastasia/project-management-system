@@ -1,4 +1,6 @@
 package com.projectmanagement.intelligence.analysis.service;
 
-public class MlEffortPredictionService {
+public interface MlEffortPredictionService {
+
+    double predict(double[] features);
 }

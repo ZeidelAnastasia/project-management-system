@@ -1,4 +1,11 @@
 package com.projectmanagement.ml.model;
 
-public class DatasetSplit {
+import java.util.List;
+import java.util.Map;
+
+public record DatasetSplit(
+        List<PreparedSample> trainingSamples,
+        List<PreparedSample> testSamples,
+        Map<String, Integer> projectDistribution
+) {
 }
